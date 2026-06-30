@@ -211,10 +211,7 @@
             </div>
           </div>
           <dl class="receipt__details">
-            <div class="detail">
-              <dt>Código revertido</dt>
-              <dd><code id="rCode">2026BEC-00042</code></dd>
-            </div>
+            <!-- "Código revertido" retirado del comprobante por seguridad (feedback Danna): es el código redimible. -->
             <div class="detail">
               <dt>Valor devuelto al rubro</dt>
               <dd id="rValue" style="color:var(--green)">+ $1.000.000</dd>
@@ -246,7 +243,7 @@
           </h4>
           <div class="next-step">
             <span class="next-step__ico">1</span>
-            <div>El código <code style="font-family:'SF Mono',monospace;font-size:11.5px;color:var(--accent);background:#fff;padding:1px 6px;border-radius:4px" id="nsCode">2026BEC-00042</code> vuelve al inventario del programa como <strong>disponible</strong> y puede reasignarse a otro deportista.</div>
+            <div>El código vuelve al inventario del programa como <strong>disponible</strong> y puede reasignarse a otro beneficiario.</div>
           </div>
           <div class="next-step">
             <span class="next-step__ico">2</span>
@@ -295,7 +292,7 @@ try{
   if(s.name){ document.getElementById('rName').textContent = s.name; document.getElementById('rAva').textContent = s.initials || 'DV'; }
   if(s.bg) document.getElementById('rAva').style.background = s.bg;
   if(s.doc) document.getElementById('rMeta').textContent = `CC ${s.doc} · ${s.prog || 'Programa'} · ${s.date || ''}`;
-  if(s.code){ document.getElementById('rCode').textContent = s.code; document.getElementById('nsCode').textContent = s.code; }
+  /* "Código revertido"/nsCode retirado por seguridad (feedback Danna): código redimible. */
   if(s.value) document.getElementById('rValue').textContent = `+ $${s.value.toLocaleString('es-CO')}`;
   if(s.motivo) document.getElementById('rMotivo').textContent = s.motivo;
   if(s.prog) document.getElementById('rProg').textContent = s.prog;
