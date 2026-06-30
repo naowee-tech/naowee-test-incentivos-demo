@@ -483,10 +483,7 @@
             <span class="lbl">Incentivo</span>
             <span class="val">Pendiente</span>
           </div>
-          <div class="summary-row pending" id="sumCode">
-            <span class="lbl">Código</span>
-            <span class="val">—</span>
-          </div>
+          <!-- Código retirado del resumen por seguridad (feedback Danna): código redimible. La selección del código sigue en la tabla del inventario. -->
           <div class="summary-row big pending" id="sumValue">
             <span class="lbl">Valor</span>
             <span class="val">$0</span>
@@ -679,15 +676,17 @@ function updateSummary(){
     sumInc.querySelector('.val').textContent = selectedInc.name;
   }
   const isBono = selectedInc?.category === 'bono';
-  if(selectedCode){
-    sumCode.classList.remove('pending');
-    sumCode.querySelector('.val').textContent = selectedCode;
-    sumCode.querySelector('.val').style.fontFamily = "'SF Mono',monospace";
-  } else if(selectedInc && !isBono){
-    // No-bono: el código no aplica
-    sumCode.classList.add('pending');
-    sumCode.querySelector('.val').textContent = 'No aplica';
-    sumCode.querySelector('.val').style.fontFamily = '';
+  /* sumCode puede no existir: el código se retiró del resumen por seguridad (feedback Danna). */
+  if(sumCode){
+    if(selectedCode){
+      sumCode.classList.remove('pending');
+      sumCode.querySelector('.val').textContent = selectedCode;
+      sumCode.querySelector('.val').style.fontFamily = "'SF Mono',monospace";
+    } else if(selectedInc && !isBono){
+      sumCode.classList.add('pending');
+      sumCode.querySelector('.val').textContent = 'No aplica';
+      sumCode.querySelector('.val').style.fontFamily = '';
+    }
   }
   // Valor + habilitar Continuar
   if(selectedInc && (isBono ? selectedCode : true)){

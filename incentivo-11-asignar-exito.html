@@ -256,13 +256,7 @@
               <span class="kv-row__lbl">Valor entregado</span>
               <span class="kv-row__val" id="receiptValue">$1.000.000</span>
             </div>
-            <div class="kv-row">
-              <span class="kv-row__ico">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8M19 8v8"/></svg>
-              </span>
-              <span class="kv-row__lbl">Código asignado</span>
-              <span class="kv-row__val"><code id="receiptCode">2026BEC-00042</code></span>
-            </div>
+            <!-- Código asignado retirado del comprobante por seguridad (feedback Danna): es el código redimible, no debe exponerse en resúmenes. -->
             <div class="kv-row">
               <span class="kv-row__ico">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
@@ -351,7 +345,7 @@ try{
   if(s.initials) document.getElementById('receiptAva').textContent = s.initials;
   if(s.doc) document.getElementById('receiptDoc').textContent = `${s.docType || 'CC'} ${s.doc}`;
   if(s.incentive) document.getElementById('receiptInc').textContent = s.incentive;
-  if(s.code) document.getElementById('receiptCode').textContent = s.code;
+  /* Código retirado del comprobante por seguridad (feedback Danna): el código redimible no se muestra en resúmenes. */
   if(s.value) document.getElementById('receiptValue').textContent = `$${s.value.toLocaleString('es-CO')}`;
   if(s.evidence) document.getElementById('evidenceLabel').textContent = s.evidence;
 }catch(e){}

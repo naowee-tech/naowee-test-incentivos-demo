@@ -419,7 +419,7 @@
           <div class="summary-row"><span class="lbl">Documento</span><span class="val" id="sumDoc">CC 1.001.234.567</span></div>
           <hr/>
           <div class="summary-row"><span class="lbl">Incentivo</span><span class="val" id="sumInc">Beca educativa</span></div>
-          <div class="summary-row"><span class="lbl">Código</span><span class="val" id="sumCode" style="font-family:'SF Mono',monospace;font-size:12px">2026BEC-00042</span></div>
+          <!-- Código retirado del resumen por seguridad (feedback Danna): código redimible. -->
           <div class="summary-row big"><span class="lbl">Valor</span><span class="val" id="sumValue">$1.000.000</span></div>
           <hr/>
           <div class="summary-row"><span class="lbl">Evidencia</span><span class="val" id="sumEvidence" style="color:var(--text-secondary);font-weight:500;font-style:italic">Pendiente</span></div>
@@ -551,7 +551,7 @@ function confirmDelivery(){
     if(s.name) document.getElementById('sumName').textContent = s.name.split(' ').slice(0,2).join(' ') + ' ' + s.name.split(' ').slice(2).map(w=>w[0]+'.').join(' ');
     if(s.doc) document.getElementById('sumDoc').textContent = `${s.docType || 'CC'} ${s.doc}`;
     if(s.incentive?.name) document.getElementById('sumInc').textContent = s.incentive.name.length > 30 ? s.incentive.name.slice(0,28)+'…' : s.incentive.name;
-    if(s.code) document.getElementById('sumCode').textContent = s.code;
+    /* Código retirado del resumen por seguridad (feedback Danna): código redimible. */
     if(s.incentive?.value) document.getElementById('sumValue').textContent = `$${s.incentive.value.toLocaleString('es-CO')}`;
     if(s.initials) document.getElementById('recapAva').textContent = s.initials;
     if(s.name) document.getElementById('recapName').textContent = s.name;
