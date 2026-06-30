@@ -884,7 +884,16 @@ function runDemo(kind, skipLoading){
 }
 
 function saveProfileAndGo(doc, kind){
-  sessionStorage.setItem('inc-profile', JSON.stringify({ doc, kind, ts: Date.now() }));
+  /* Guarda el beneficiario COMPLETO para que viaje por todo el flujo (10 → 09 → 11). */
+  const p = SAMPLE[kind] || {};
+  sessionStorage.setItem('inc-profile', JSON.stringify({
+    doc, kind, ts: Date.now(),
+    role: p.role || 'athlete', level: p.level, supportType: p.supportType,
+    name: p.name, docType: p.docType, initials: p.initials,
+    age: p.age, disc: p.disc, zone: p.zone, category: p.category,
+    coachRole: p.coachRole, deportistas: p.deportistas, sede: p.sede,
+    rep: p.rep, medal: p.medal, programs: p.programs || []
+  }));
   fadeAndGo('incentivo-10-asignar-tipo.html?doc=' + doc);
 }
 

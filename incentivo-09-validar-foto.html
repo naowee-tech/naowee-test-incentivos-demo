@@ -369,8 +369,7 @@
                 <div class="recap__name" id="recapName">María Camila Herrera Rojas</div>
                 <div class="recap__meta">
                   <span id="recapDoc"><strong>CC</strong> 1.001.234.567</span><span class="dot"></span>
-                  <span id="recapInc">Beca educativa · Medallistas de oro</span><span class="dot"></span>
-                  <code id="recapCode">2026BEC-00042</code>
+                  <span id="recapInc">Beca educativa · Medallistas de oro</span>
                 </div>
               </div>
             </div>
@@ -531,16 +530,14 @@ function markReady(text){
 
 function confirmDelivery(){
   // persistir la info final
-  sessionStorage.setItem('inc-assignment-complete', JSON.stringify({
-    doc:'1.001.234.567', docType:'CC',
-    name:'María Camila Herrera Rojas', initials:'MC',
-    incentive:'Beca educativa · Medallistas de oro',
-    code:'2026BEC-00042',
-    value:1000000,
+  const s = JSON.parse(sessionStorage.getItem('inc-assignment') || '{}');
+  sessionStorage.setItem('inc-assignment-complete', JSON.stringify(Object.assign({}, s, {
+    incentive: s.incentive?.name || 'Incentivo',
+    value: s.incentive?.value || 0,
     observation: document.getElementById('obs').value || null,
     evidence: evidenceFileName ? `Archivo subido · ${evidenceFileName}` : 'Archivo subido',
     ts: Date.now()
-  }));
+  })));
   fadeAndGo('incentivo-11-asignar-exito.html');
 }
 
@@ -557,7 +554,8 @@ function confirmDelivery(){
     if(s.name) document.getElementById('recapName').textContent = s.name;
     if(s.doc) document.getElementById('recapDoc').innerHTML = `<strong>${s.docType}</strong> ${s.doc}`;
     if(s.incentive?.name) document.getElementById('recapInc').textContent = s.incentive.name;
-    if(s.code) document.getElementById('recapCode').textContent = s.code;
+    /* recapCode (código redimible) retirado del resumen por seguridad (feedback Danna). */
+    if(s.name){ const lbl = document.getElementById('sumName')?.closest('.summary-row')?.querySelector('.lbl'); if(lbl) lbl.textContent = (s.role==='institution'?'Institución':s.role==='coach'?'Personal de apoyo':s.level==='paradeportista'?'Paradeportista':'Deportista'); }
   }catch(e){}
 })();
 

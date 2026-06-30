@@ -205,7 +205,7 @@
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h1>¡Incentivo entregado con éxito!</h1>
-          <p>El incentivo fue registrado y asociado al perfil del deportista en la plataforma. El código quedó marcado como <strong>Asignado</strong> y se descontó del rubro del programa.</p>
+          <p>El incentivo fue registrado y asociado al perfil del beneficiario en la plataforma. Quedó marcado como <strong>Asignado</strong> y se descontó del rubro del programa.</p>
           <div class="success-stamp" id="stamp">ID · #—</div>
         </div>
 
@@ -238,7 +238,7 @@
             <div class="receipt__ava" id="receiptAva">MC</div>
             <div class="receipt__person">
               <div class="receipt__person-name" id="receiptName">María Camila Herrera Rojas</div>
-              <div class="receipt__person-meta"><span id="receiptDoc">CC 1.001.234.567</span> · 19 años · Atletismo</div>
+              <div class="receipt__person-meta"><span id="receiptDoc">CC 1.001.234.567</span><span id="receiptMetaExtra"> · 19 años · Atletismo</span></div>
             </div>
           </div>
           <div class="receipt__details">
@@ -344,6 +344,12 @@ try{
   if(s.name) document.getElementById('receiptName').textContent = s.name;
   if(s.initials) document.getElementById('receiptAva').textContent = s.initials;
   if(s.doc) document.getElementById('receiptDoc').textContent = `${s.docType || 'CC'} ${s.doc}`;
+  const metaExtra = document.getElementById('receiptMetaExtra');
+  if(metaExtra && s.name){
+    metaExtra.textContent = s.role==='institution' ? ` · ${s.zone||''} · ${s.deportistas||0} deportistas`
+      : s.role==='coach' ? ` · ${s.coachRole||''} · ${s.disc||''}`
+      : ` · ${s.age||''} años · ${(s.disc||'').split(' · ')[0]}`;
+  }
   if(s.incentive) document.getElementById('receiptInc').textContent = s.incentive;
   /* Código retirado del comprobante por seguridad (feedback Danna): el código redimible no se muestra en resúmenes. */
   if(s.value) document.getElementById('receiptValue').textContent = `$${s.value.toLocaleString('es-CO')}`;

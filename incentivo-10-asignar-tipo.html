@@ -734,6 +734,53 @@ renderCodes();
   }catch(e){}
 })();
 
+/* ── Linkear toda la UX: hidratar el beneficiario real (deportista/para/apoyo/institución) ── */
+(function hydrateBeneficiary(){
+  try{
+    const p = JSON.parse(sessionStorage.getItem('inc-profile') || '{}');
+    if(!p || !p.name) return;
+    const ava = document.querySelector('.flow-recap__ava'); if(ava) ava.textContent = p.initials || '—';
+    const nm  = document.querySelector('.flow-recap__name'); if(nm)  nm.textContent  = p.name;
+    const meta= document.querySelector('.flow-recap__meta'); if(meta) meta.innerHTML  = benefMetaHTML(p);
+    const rows = document.querySelectorAll('.summary .summary-row');
+    if(rows[0]){ rows[0].querySelector('.lbl').textContent = typeLabel(p); rows[0].querySelector('.val').textContent = shortName(p.name); }
+    if(rows[1]){ rows[1].querySelector('.val').textContent = `${p.docType || 'CC'} ${p.doc}`; }
+    if(Array.isArray(p.programs) && p.programs.length){
+      const pending = p.programs.filter(pr => !pr.assigned);
+      const list = document.getElementById('incList');
+      if(list){
+        list.innerHTML = pending.map((pr, i) => incItemHTML(pr, i)).join('');
+        if(pending.length === 1){ const only = list.querySelector('.inc'); if(only) only.click(); }
+      }
+    }
+  }catch(e){}
+})();
+
+function typeLabel(p){ return p.role==='institution' ? 'Institución' : p.role==='coach' ? 'Personal de apoyo' : (p.level==='paradeportista' ? 'Paradeportista' : 'Deportista'); }
+function shortName(name){ const w=(name||'').trim().split(/\s+/); return w.length>2 ? w.slice(0,2).join(' ')+' '+w.slice(2).map(x=>x[0]+'.').join('') : (name||''); }
+function benefMetaHTML(p){
+  const dot='<span class="dot"></span>';
+  if(p.role==='institution') return `<span><strong>NIT</strong> ${p.doc}</span>${dot}<span>${p.zone||''}</span>${dot}<span>${p.deportistas||0} deportistas</span>`;
+  if(p.role==='coach') return `<span><strong>${p.docType||'CC'}</strong> ${p.doc}</span>${dot}<span>${p.coachRole||''}</span>${dot}<span>${p.disc||''}</span>${dot}<span>${p.zone||''}</span>`;
+  return `<span><strong>${p.docType||'CC'}</strong> ${p.doc}</span>${dot}<span>${p.age||''} años</span>${dot}<span>${p.disc||''}</span>${dot}<span>${p.zone||''}</span>${p.medal ? dot+`<span style="color:var(--naowee-color-feedback-fill-positive-loud,#1f8923);font-weight:600">${p.medal}</span>` : ''}`;
+}
+function incItemHTML(pr, i){
+  const valNum = parseInt(String(pr.value).replace(/[^0-9]/g,'')) || 0;
+  const isBono = /bono/i.test(pr.name || '');
+  const ICONS = { trophy:'<path d="M6 9H4a2 2 0 01-2-2V5h4M18 9h2a2 2 0 002-2V5h-4M6 5h12v6a6 6 0 01-12 0V5zM10 17h4l1 4H9z"/>', medal:'<circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 22l5-3 5 3-1.21-8.12"/>', award:'<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>', bag:'<rect x="5" y="8" width="14" height="12" rx="2"/><path d="M9 8V5a3 3 0 016 0v3"/>' };
+  const icon = ICONS[pr.icon] || ICONS.award;
+  return `<div class="inc" data-id="p${i}" data-category="${isBono?'bono':'otro'}" data-value="${valNum}" data-name="${(pr.name||'').replace(/"/g,'&quot;')}" onclick="selectInc(this)">
+    <div class="inc__ico" style="background:${pr.iconBg||'#fff3e6'};color:${pr.iconColor||'#d74009'}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+    </div>
+    <div class="inc__body">
+      <div class="inc__name">${pr.name||''}</div>
+      <div class="inc__desc">${pr.desc||''}</div>
+    </div>
+    <div class="inc__value">${pr.value||''}</div>
+  </div>`;
+}
+
 /* ── Filtrar incentivos según el kind del perfil (cuando ya tiene incentivos asignados) ── */
 (function filterAssignedIncentives(){
   try{
@@ -775,12 +822,12 @@ renderCodes();
 })();
 
 function fadeAndGo(url){
-  if(selectedInc && selectedCode){
-    sessionStorage.setItem('inc-assignment', JSON.stringify({
-      doc:'1.001.234.567', docType:'CC',
-      name:'María Camila Herrera Rojas', initials:'MC',
-      incentive: selectedInc, code: selectedCode, ts: Date.now()
-    }));
+  if(selectedInc){
+    /* Carga el beneficiario real (no-bono no exige código). */
+    const p = JSON.parse(sessionStorage.getItem('inc-profile') || '{}');
+    sessionStorage.setItem('inc-assignment', JSON.stringify(Object.assign({}, p, {
+      incentive: selectedInc, code: selectedCode || null, ts: Date.now()
+    })));
   }
   if('startViewTransition' in document || CSS.supports('view-transition-name: x')){
     window.location.href = url;
