@@ -811,8 +811,8 @@ const SAMPLE = {
     ],
     conditions:[
       { label:'Primer lugar del ranking institucional', val:'#1 de 36', ok:true },
-      { label:'Mayor número de medallas de oro · final nacional', val:'14 oros', ok:true },
-      { label:'Desempate: plata, bronce y deportistas clasificados', val:'9 🥈 · 48 clasif.', ok:true }
+      { label:'Mayor cantidad de medallas · deportes convencionales', val:'29 medallas', ok:true },
+      { label:'Desempate: más deportistas llevados a la final', val:'48 clasificados', ok:true }
     ],
     programs:[
       { name:'Dotación deportiva institucional 2026', desc:'Implementación deportiva para la institución con mayor medallero', value:'$8.000.000', iconBg:'#fff3e6', iconColor:'#d74009', icon:'trophy' },
@@ -830,7 +830,7 @@ const BENEF_CFG = {
   deportista:    { docLabel:'Número de documento',   placeholder:'Ej. 1001234567',     showDocType:true,  hint:'Busca al deportista por su documento. El sistema valida automáticamente si cumple las condiciones de los programas activos.' },
   paradeportista:{ docLabel:'Número de documento',   placeholder:'Ej. 1090345678',     showDocType:true,  hint:'Busca al paradeportista por su documento. La elegibilidad considera su categoría y medallero paralímpico.' },
   apoyo:         { docLabel:'Número de documento',   placeholder:'Ej. 1050987654',     showDocType:true,  hint:'Busca al personal de apoyo (entrenador, coach, preparador) por su documento para validar su elegibilidad.' },
-  institucion:   { docLabel:'NIT de la institución', placeholder:'Ej. 800.214.553-7',  showDocType:false, hint:'Busca la institución educativa por su NIT. Se evalúa por ranking de medallero (oro, luego plata, bronce y deportistas clasificados a la final nacional); el incentivo se otorga solo al primer lugar.' }
+  institucion:   { docLabel:'NIT de la institución', placeholder:'Ej. 800.214.553-7',  showDocType:false, hint:'Busca la institución educativa por su NIT. Se evalúa por cantidad de medallas en deportes convencionales; en empate, la institución con más deportistas llevados a la final. Solo el primer lugar recibe el incentivo.' }
 };
 function selectBenefType(type){
   const cfg = BENEF_CFG[type] || BENEF_CFG.deportista;
