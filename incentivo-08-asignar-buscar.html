@@ -90,6 +90,7 @@
   .benef-radios{display:flex;gap:10px;flex-wrap:wrap}
   .benef-radio{display:inline-flex;align-items:center;gap:10px;flex:1;min-width:160px;justify-content:flex-start;padding:12px 16px;border:1.5px solid var(--naowee-color-border-default,#e7e9f3);border-radius:10px;background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--naowee-color-text-secondary,#646587);transition:border-color .15s,background .15s,color .15s}
   .benef-radio:hover{border-color:var(--naowee-color-border-strong,#d0d4e6)}
+  .benef-radio:focus-visible{outline:none;border-color:var(--naowee-color-text-accent,#d74009);box-shadow:0 0 0 3px rgba(215,64,9,.15)}
   .benef-radio.is-selected{border-color:var(--naowee-color-text-accent,#d74009);background:#fff3e6;color:var(--naowee-color-text-primary,#282834)}
   .benef-radio .naowee-radio{flex-shrink:0;pointer-events:none}
   @media(max-width:760px){.benef-radio{flex:1 1 42%}}
@@ -555,21 +556,21 @@
 
         <!-- Tipo de beneficiario — feedback Danna (instituciones + paradeportistas + personal de apoyo) -->
         <div class="benef-types">
-          <label class="benef-types__lbl">Tipo de beneficiario</label>
-          <div class="benef-radios" id="benefTabs" role="radiogroup" aria-label="Tipo de beneficiario">
-            <button type="button" class="benef-radio is-selected" data-type="deportista" role="radio" aria-checked="true" onclick="selectBenefType('deportista')">
+          <span id="benefTypesLbl" class="benef-types__lbl">Tipo de beneficiario</span>
+          <div class="benef-radios" id="benefTabs" role="radiogroup" aria-labelledby="benefTypesLbl">
+            <button type="button" class="benef-radio is-selected" data-type="deportista" role="radio" aria-checked="true" tabindex="0" onclick="selectBenefType('deportista')">
               <span class="naowee-radio naowee-radio--selected"><span class="naowee-radio__circle"></span></span>
               <span>Deportista</span>
             </button>
-            <button type="button" class="benef-radio" data-type="paradeportista" role="radio" aria-checked="false" onclick="selectBenefType('paradeportista')">
+            <button type="button" class="benef-radio" data-type="paradeportista" role="radio" aria-checked="false" tabindex="-1" onclick="selectBenefType('paradeportista')">
               <span class="naowee-radio"><span class="naowee-radio__circle"></span></span>
               <span>Paradeportista</span>
             </button>
-            <button type="button" class="benef-radio" data-type="apoyo" role="radio" aria-checked="false" onclick="selectBenefType('apoyo')">
+            <button type="button" class="benef-radio" data-type="apoyo" role="radio" aria-checked="false" tabindex="-1" onclick="selectBenefType('apoyo')">
               <span class="naowee-radio"><span class="naowee-radio__circle"></span></span>
               <span>Personal de apoyo</span>
             </button>
-            <button type="button" class="benef-radio" data-type="institucion" role="radio" aria-checked="false" onclick="selectBenefType('institucion')">
+            <button type="button" class="benef-radio" data-type="institucion" role="radio" aria-checked="false" tabindex="-1" onclick="selectBenefType('institucion')">
               <span class="naowee-radio"><span class="naowee-radio__circle"></span></span>
               <span>Institución educativa</span>
             </button>
@@ -614,7 +615,7 @@
           <button class="quick-chip" data-type="paradeportista" style="display:none" onclick="runDemo('eligible-para')"><code>1090345678</code> · paradeportista aplica</button>
           <button class="quick-chip" data-type="apoyo" style="display:none" onclick="runDemo('eligible-coach')"><code>1050987654</code> · entrenador aplica</button>
           <button class="quick-chip" data-type="apoyo" style="display:none" onclick="runDemo('not-eligible-coach')"><code>1067543210</code> · entrenador no fue el primero</button>
-          <button class="quick-chip" data-type="institucion" style="display:none" onclick="runDemo('institution')"><code>800.214.553-7</code> · institución (mayor medallero)</button>
+          <button class="quick-chip" data-type="institucion" style="display:none" onclick="runDemo('institution')"><code>800.214.553-7</code> · institución #1 del ranking</button>
           <button class="quick-chip" data-type="all" onclick="runDemo('not-found')"><code>9999999999</code> · sin registro</button>
         </div>
       </div>
@@ -626,7 +627,7 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           </div>
           <h4>Ingresa un documento para empezar</h4>
-          <p>El beneficiario (deportista o personal de apoyo) debe acercarse con su documento de identidad. Usa los ejemplos de demo para ver los casos posibles.</p>
+          <p>El beneficiario debe presentar su documento (cédula o NIT según el tipo) para iniciar la validación. Usa los ejemplos de demo para ver los casos posibles.</p>
         </div>
       </div>
 
@@ -800,22 +801,19 @@ const SAMPLE = {
     deportistas:48, initials:'LN',
     medal:'Primer lugar · ranking institucional 2025',
     rankPos:1, rankTotal:36,
-    medalsCount:{ oro:14, plata:9, bronce:6 },
+    /* Regla Elkin: institución = cantidad TOTAL de medallas (sin diferenciar oro/plata/bronce). */
+    medalsTotal:29,
+    clasificados:48,
     rep:'Martha L. Crespo (Rectora)',
     phone:'(605) 372 4410', email:'rectoria@liceodelnorte.edu.co',
-    medals:[
-      { type:'oro',    event:'Juegos Intercolegiados 2025', year:2025 },
-      { type:'oro',    event:'Nacional escolar 2024',       year:2024 },
-      { type:'plata',  event:'Juegos Intercolegiados 2025', year:2025 },
-      { type:'bronce', event:'Regional Atlántico 2025',     year:2025 }
-    ],
+    /* medals[] eliminado del perfil institution — el desglose por tipo aplica sólo al medallero personal (deportista). */
     conditions:[
       { label:'Primer lugar del ranking institucional', val:'#1 de 36', ok:true },
       { label:'Mayor cantidad de medallas · deportes convencionales', val:'29 medallas', ok:true },
       { label:'Desempate: más deportistas llevados a la final', val:'48 clasificados', ok:true }
     ],
     programs:[
-      { name:'Dotación deportiva institucional 2026', desc:'Implementación deportiva para la institución con mayor medallero', value:'$8.000.000', iconBg:'#fff3e6', iconColor:'#d74009', icon:'trophy' },
+      { name:'Dotación deportiva institucional 2026', desc:'Implementación deportiva para la institución con mayor cantidad de medallas en deportes convencionales', value:'$8.000.000', iconBg:'#fff3e6', iconColor:'#d74009', icon:'trophy' },
       { name:'Reconocimiento a la institución', desc:'Estímulo económico por desempeño deportivo escolar', value:'$3.000.000', iconBg:'#f3e8ff', iconColor:'#7c3aed', icon:'award' }
     ]
   }
@@ -832,14 +830,36 @@ const BENEF_CFG = {
   apoyo:         { docLabel:'Número de documento',   placeholder:'Ej. 1050987654',     showDocType:true,  hint:'Busca al personal de apoyo (entrenador, coach, preparador) por su documento para validar su elegibilidad.' },
   institucion:   { docLabel:'NIT de la institución', placeholder:'Ej. 800.214.553-7',  showDocType:false, hint:'Busca la institución educativa por su NIT. Se evalúa por cantidad de medallas en deportes convencionales; en empate, la institución con más deportistas llevados a la final. Solo el primer lugar recibe el incentivo.' }
 };
-function selectBenefType(type){
+/* WAI-ARIA radiogroup: navegación con flechas + Home/End + wrap-around. */
+(function attachRadioKeydown(){
+  const grp = document.getElementById('benefTabs');
+  if(!grp) return;
+  grp.addEventListener('keydown', (e) => {
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
+    const radios = [...grp.querySelectorAll('.benef-radio')];
+    const cur = radios.findIndex(r => r === document.activeElement);
+    let next = cur;
+    if(e.key === 'Home') next = 0;
+    else if(e.key === 'End') next = radios.length - 1;
+    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (cur - 1 + radios.length) % radios.length;
+    else next = (cur + 1) % radios.length;
+    e.preventDefault();
+    const t = radios[next]?.dataset.type;
+    if(t) selectBenefType(t, { focus: true });
+  });
+})();
+
+function selectBenefType(type, opts){
   const cfg = BENEF_CFG[type] || BENEF_CFG.deportista;
   document.querySelectorAll('#benefTabs .benef-radio').forEach(t => {
     const on = t.dataset.type === type;
     t.classList.toggle('is-selected', on);
     t.setAttribute('aria-checked', on ? 'true' : 'false');
+    /* Roving tabindex: solo el seleccionado es focuseable con Tab (WAI-ARIA radio pattern). */
+    t.setAttribute('tabindex', on ? '0' : '-1');
     const r = t.querySelector('.naowee-radio');
     if(r) r.classList.toggle('naowee-radio--selected', on);
+    if(on && opts?.focus) t.focus();
   });
   document.querySelectorAll('.quick-chip[data-type]').forEach(c => { c.style.display = (c.dataset.type === type || c.dataset.type === 'all') ? '' : 'none'; });
   const lbl = document.getElementById('docNumLabel'); if(lbl) lbl.textContent = cfg.docLabel;
@@ -879,7 +899,7 @@ function runDemo(kind, skipLoading){
     else wrap.innerHTML = renderNotFound();
   };
   if(skipLoading){ render(); return; }
-  wrap.innerHTML = `<div class="loading-banner"><div class="spinner"></div> Validando datos del deportista en la plataforma…</div>`;
+  wrap.innerHTML = `<div class="loading-banner"><div class="spinner"></div> Validando datos del beneficiario en la plataforma…</div>`;
   setTimeout(render, 500);
 }
 
@@ -1116,8 +1136,13 @@ function renderProfileCard(p, opts){
       </div>
       <div class="kv-row">
         <span class="kv-row__ico">${KV_ICONS.medal}</span>
-        <span class="kv-row__lbl">Medallero acumulado</span>
-        <span class="kv-row__val">${p.medalsCount ? `${p.medalsCount.oro} 🥇 · ${p.medalsCount.plata} 🥈 · ${p.medalsCount.bronce} 🥉` : '—'}</span>
+        <span class="kv-row__lbl">Medallas · deportes convencionales</span>
+        <span class="kv-row__val">${p.medalsTotal != null ? `${p.medalsTotal} medallas` : '—'}</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-row__ico">${KV_ICONS.athlete}</span>
+        <span class="kv-row__lbl">Deportistas llevados a la final</span>
+        <span class="kv-row__val">${p.clasificados != null ? p.clasificados : '—'}</span>
       </div>
       <div class="kv-row">
         <span class="kv-row__ico">${KV_ICONS.ctName}</span>
@@ -1437,7 +1462,7 @@ function renderNotFound(){
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8.5 11h5M11 8.5v5"/></svg>
         </div>
         <h4>Documento no encontrado en la plataforma</h4>
-        <p>El documento ingresado no está registrado en el SUID. Verifica el número o solicita que el beneficiario (deportista o personal de apoyo) se registre antes de continuar.</p>
+        <p>El documento ingresado no está registrado en el SUID. Verifica el número o solicita al beneficiario que complete su registro antes de continuar.</p>
         <div class="not-found__actions">
           <button class="naowee-btn naowee-btn--mute naowee-btn--medium" onclick="document.getElementById('docNumber').value='';document.getElementById('docNumber').focus();resetState()">Intentar otro</button>
           <button class="naowee-btn naowee-btn--link naowee-btn--medium">Contactar soporte</button>
@@ -1454,7 +1479,7 @@ function resetState(){
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       </div>
       <h4>Ingresa un documento para empezar</h4>
-      <p>El deportista debe acercarse con su documento de identidad. Puedes usar los ejemplos de demo arriba para ver los tres posibles resultados de búsqueda.</p>
+      <p>El beneficiario debe presentar su documento (cédula o NIT según el tipo) para iniciar la validación. Puedes usar los ejemplos de demo arriba para ver los resultados posibles.</p>
     </div>
   `;
 }

@@ -393,12 +393,12 @@
             </div>
             <div class="obs-field">
               <label for="obs" class="naowee-textfield__label">Observaciones del operador (opcional)</label>
-              <textarea id="obs" class="naowee-textfield__input" rows="3" placeholder="Ej. Entrega realizada al finalizar la jornada del evento. Deportista acompañado por su entrenador."></textarea>
+              <textarea id="obs" class="naowee-textfield__input" rows="3" placeholder="Ej. Entrega realizada al finalizar la jornada del evento."></textarea>
             </div>
             </div><!-- /.panel__body -->
 
             <div class="flow-footer">
-              <button class="naowee-btn naowee-btn--mute naowee-btn--large" onclick="fadeAndGo('incentivo-10-asignar-tipo.html?doc=1001234567')">
+              <button class="naowee-btn naowee-btn--mute naowee-btn--large" onclick="goBackToStep2()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                 Volver al paso anterior
               </button>
@@ -545,7 +545,16 @@ function confirmDelivery(){
 (function hydrate(){
   try{
     const s = JSON.parse(sessionStorage.getItem('inc-assignment') || '{}');
-    if(s.name) document.getElementById('sumName').textContent = s.name.split(' ').slice(0,2).join(' ') + ' ' + s.name.split(' ').slice(2).map(w=>w[0]+'.').join(' ');
+    if(s.name){
+      /* Para institución no abreviar (rompe el nombre); para persona sí. */
+      const el = document.getElementById('sumName');
+      if(s.role === 'institution'){
+        el.textContent = s.name.length > 28 ? s.name.slice(0, 26) + '…' : s.name;
+      } else {
+        const w = s.name.split(' ');
+        el.textContent = w.length > 2 ? w.slice(0,2).join(' ') + ' ' + w.slice(2).map(x=>x[0]+'.').join(' ') : s.name;
+      }
+    }
     if(s.doc) document.getElementById('sumDoc').textContent = `${s.docType || 'CC'} ${s.doc}`;
     if(s.incentive?.name) document.getElementById('sumInc').textContent = s.incentive.name.length > 30 ? s.incentive.name.slice(0,28)+'…' : s.incentive.name;
     /* Código retirado del resumen por seguridad (feedback Danna): código redimible. */
@@ -558,6 +567,15 @@ function confirmDelivery(){
     if(s.name){ const lbl = document.getElementById('sumName')?.closest('.summary-row')?.querySelector('.lbl'); if(lbl) lbl.textContent = (s.role==='institution'?'Institución':s.role==='coach'?'Personal de apoyo':s.level==='paradeportista'?'Paradeportista':'Deportista'); }
   }catch(e){}
 })();
+
+/* Volver al paso 2 conservando el beneficiario real (evita el fallback ficticio a 1001234567). */
+function goBackToStep2(){
+  try{
+    const s = JSON.parse(sessionStorage.getItem('inc-assignment') || '{}');
+    const q = s.doc ? ('?doc=' + encodeURIComponent(s.doc)) : '';
+    fadeAndGo('incentivo-10-asignar-tipo.html' + q);
+  }catch(e){ fadeAndGo('incentivo-10-asignar-tipo.html'); }
+}
 
 function fadeAndGo(url){
   if('startViewTransition' in document || CSS.supports('view-transition-name: x')){

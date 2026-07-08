@@ -262,7 +262,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
               </span>
               <span class="kv-row__lbl">Programa</span>
-              <span class="kv-row__val">Becas deportivas 2026</span>
+              <span class="kv-row__val" id="receiptProgram">Becas deportivas 2026</span>
             </div>
             <div class="kv-row">
               <span class="kv-row__ico">
@@ -280,7 +280,7 @@
             </div>
           </div>
           <div class="receipt__footer">
-            <span>Zona: <strong>Atlántico · Barranquilla</strong></span>
+            <span id="receiptZoneLbl">Zona: <strong id="receiptZone">Atlántico · Barranquilla</strong></span>
           </div>
         </div>
 
@@ -353,7 +353,16 @@ try{
   if(s.incentive) document.getElementById('receiptInc').textContent = s.incentive;
   /* Código retirado del comprobante por seguridad (feedback Danna): el código redimible no se muestra en resúmenes. */
   if(s.value) document.getElementById('receiptValue').textContent = `$${s.value.toLocaleString('es-CO')}`;
-  if(s.evidence) document.getElementById('evidenceLabel').textContent = s.evidence;
+  /* Programa: por ahora se usa el nombre del incentivo como programa (en producción se persistiría el programa real desde la pantalla 10). */
+  if(s.incentive) document.getElementById('receiptProgram').textContent = s.incentive;
+  /* Zona: para institución usar "Sede", para persona usar "Zona". */
+  if(s.zone){
+    document.getElementById('receiptZone').textContent = s.zone;
+    const zLbl = document.getElementById('receiptZoneLbl');
+    if(zLbl && s.role==='institution'){
+      zLbl.innerHTML = 'Sede: <strong id="receiptZone">'+s.zone+'</strong>';
+    }
+  }
 }catch(e){}
 
 /* Helpers */

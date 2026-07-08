@@ -291,7 +291,7 @@ try{
   const s = JSON.parse(sessionStorage.getItem('revert-complete') || '{}');
   if(s.name){ document.getElementById('rName').textContent = s.name; document.getElementById('rAva').textContent = s.initials || 'DV'; }
   if(s.bg) document.getElementById('rAva').style.background = s.bg;
-  if(s.doc) document.getElementById('rMeta').textContent = `CC ${s.doc} · ${s.prog || 'Programa'} · ${s.date || ''}`;
+  if(s.doc) document.getElementById('rMeta').textContent = `${s.docType || 'CC'} ${s.doc} · ${s.prog || 'Programa'} · ${s.date || ''}`;
   /* "Código revertido"/nsCode retirado por seguridad (feedback Danna): código redimible. */
   if(s.value) document.getElementById('rValue').textContent = `+ $${s.value.toLocaleString('es-CO')}`;
   if(s.motivo) document.getElementById('rMotivo').textContent = s.motivo;
