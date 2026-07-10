@@ -1591,7 +1591,21 @@
       const puestosLbl = puestos === 'p3' ? 'los tres primeros lugares' : puestos === 'p2' ? 'el 1er y 2º lugar' : 'únicamente el 1er lugar';
       const body = panels[0].querySelector('.wz-cond-preview__body');
       if(body){
-        body.innerHTML = `Se calcula el <strong>ranking de instituciones educativas</strong> en <strong>${grupoLbl}</strong> por <strong>cantidad total de medallas</strong> obtenidas en la final nacional (dato de la plataforma); en caso de empate, gana la institución con <strong>más deportistas llevados a la final</strong>. Recibe el incentivo <strong>${puestosLbl}</strong> del ranking.`;
+        /* Distribución del monto entre puestos: con un solo tipo de incentivo
+           cada puesto recibe el MISMO monto (valor unitario del paso 2). */
+        const nPlaces = puestos === 'p3' ? 3 : puestos === 'p2' ? 2 : 1;
+        const unit = parseMoney(document.querySelector('.wz-pane[data-pane="2"] .wz-inc-card__unit input'));
+        const fmt = n => `$${n.toLocaleString('es-CO')}`;
+        let dist = '';
+        if(nPlaces > 1){
+          dist = unit > 0
+            ? `<br/><br/><strong>Distribución:</strong> con un solo tipo de incentivo, <strong>cada puesto recibe el mismo monto</strong> — ${fmt(unit)} por institución (valor unitario del paso 2). Total comprometido: <strong>${nPlaces} × ${fmt(unit)} = ${fmt(nPlaces * unit)}</strong>, descontado del rubro.`
+            : `<br/><br/><strong style="color:var(--naowee-color-text-accent,#d74009)">⚠ Falta el Valor unitario:</strong> con un solo tipo de incentivo cada puesto recibe el <strong>mismo monto</strong> — define el <strong>Valor unitario</strong> en el paso 2 para calcular cuánto recibe cada uno de los ${nPlaces} puestos.`;
+          dist += ` <em>¿Montos diferentes por puesto? Cambia a <strong>Varios tipos</strong> en el paso 2 y asigna un incentivo por puesto.</em>`;
+        } else if(unit > 0){
+          dist = `<br/><br/><strong>Distribución:</strong> el 1er lugar recibe <strong>${fmt(unit)}</strong> (valor unitario del paso 2), descontado del rubro.`;
+        }
+        body.innerHTML = `Se calcula el <strong>ranking de instituciones educativas</strong> en <strong>${grupoLbl}</strong> por <strong>cantidad total de medallas</strong> obtenidas en la final nacional (dato de la plataforma); en caso de empate, gana la institución con <strong>más deportistas llevados a la final</strong>. Recibe el incentivo <strong>${puestosLbl}</strong> del ranking.` + dist;
         const prev = panels[0].querySelector('.wz-cond-preview');
         if(prev) prev.dataset.empty = 'false';
       }
@@ -1635,7 +1649,12 @@
       return { idx: i, name, catKey, catLbl };
     });
     const expectedKey = benefTypeMode + '::' + (isMulti ? 'multi' : 'single') + ':' + meta.map(m => `${m.idx}|${m.name}|${m.catKey}`).join('//');
-    if(container.dataset.wzKey === expectedKey) return; // no hay cambios
+    if(container.dataset.wzKey === expectedKey){
+      /* Sin cambios estructurales — pero el usuario pudo editar montos en el
+         paso 2: refrescar la distribución de la vista previa institucional. */
+      refreshInstPreview();
+      return;
+    }
     container.dataset.wzKey = expectedKey;
 
     const benefSelector = benefSelectorHTML();
