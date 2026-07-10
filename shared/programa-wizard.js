@@ -358,6 +358,7 @@
     const singleCard = document.querySelector('.toggle-card[data-val="single"]');
     if(singleCard) setIncTypesMode(singleCard, 'single');
     // Step 3 — paneles se regeneran al entrar al paso 3
+    benefTypeMode = 'deportista';
     const condPanels = document.getElementById('wzCondPanels');
     if(condPanels){ condPanels.innerHTML = ''; condPanels.dataset.wzKey = ''; }
     // Step 4 — limpiar archivo y filas manuales
@@ -1506,6 +1507,89 @@
     });
   }
 
+  /* ══ Tipo de beneficiario (feedback Danna/Elkin) ══
+     Selección única a nivel de programa. 'institucion' reemplaza el builder de
+     condiciones individuales por la parametrización del ranking institucional:
+     ranking por cantidad total de medallas (deportes convencionales), desempate
+     por deportistas llevados a la final, y solo el/los primeros lugares reciben. */
+  let benefTypeMode = 'deportista';
+  const BENEF_TYPES = [
+    { key:'deportista',     title:'Deportista',            desc:'Atletas registrados en el SUID.' },
+    { key:'paradeportista', title:'Paradeportista',        desc:'Atletas de paradeportes — grupo aparte de convencionales.' },
+    { key:'apoyo',          title:'Personal de apoyo',     desc:'Entrenadores, coach y preparadores del deportista.' },
+    { key:'institucion',    title:'Institución educativa', desc:'Colegios — por ranking de medallero institucional.' }
+  ];
+
+  function setBenefType(el, type){
+    if(benefTypeMode === type) return;
+    benefTypeMode = type;
+    isDirty = true;
+    const container = document.getElementById('wzCondPanels');
+    if(container) container.dataset.wzKey = ''; // forzar re-render con el tipo nuevo
+    renderCondPanels();
+    // Devolver el foco al radio recién seleccionado tras el re-render
+    const sel = container?.querySelector(`.toggle-card[data-val="${type}"]`);
+    if(sel) sel.focus();
+  }
+
+  function benefSelectorHTML(){
+    return `
+      <div style="margin:0 0 18px">
+        <span id="wzBenefLbl" style="display:block;font-size:12.5px;font-weight:600;color:var(--naowee-color-text-primary,#282834);margin-bottom:8px">Tipo de beneficiario</span>
+        <div class="toggle-cards" data-wz-benef-toggle role="radiogroup" aria-labelledby="wzBenefLbl" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${BENEF_TYPES.map(b => {
+            const on = benefTypeMode === b.key;
+            return `
+            <div class="toggle-card${on ? ' active' : ''}" data-val="${b.key}" role="radio" aria-checked="${on}" tabindex="${on ? '0' : '-1'}" onclick="setBenefType(this,'${b.key}')">
+              <div class="naowee-radio${on ? ' naowee-radio--selected' : ''}"><div class="naowee-radio__circle"></div></div>
+              <div class="toggle-card__body"><div class="toggle-card__title">${b.title}</div><div class="toggle-card__desc">${b.desc}</div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  /* Navegación con flechas + Enter/Espacio en el radiogroup (los toggle-card son divs). */
+  function wireBenefKeyboard(container){
+    const grp = container.querySelector('[data-wz-benef-toggle]');
+    if(!grp || grp.dataset.wzKeys) return;
+    grp.dataset.wzKeys = '1';
+    grp.addEventListener('keydown', e => {
+      const radios = [...grp.querySelectorAll('.toggle-card')];
+      const cur = radios.findIndex(r => r === document.activeElement);
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        if(cur >= 0) setBenefType(radios[cur], radios[cur].dataset.val);
+        return;
+      }
+      if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
+      e.preventDefault();
+      let next = cur;
+      if(e.key === 'Home') next = 0;
+      else if(e.key === 'End') next = radios.length - 1;
+      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (cur - 1 + radios.length) % radios.length;
+      else next = (cur + 1) % radios.length;
+      const t = radios[next];
+      if(t) setBenefType(t, t.dataset.val);
+    });
+  }
+
+  /* Vista previa en lenguaje natural de la regla institucional. */
+  function refreshInstPreview(){
+    const panel = document.querySelector('.wz-cond-panel[data-benef="institucion"]');
+    if(!panel) return;
+    const grupo   = panel.querySelector('[data-wz-name="benef-grupo"]')?.dataset?.wzValue || 'convencionales';
+    const puestos = panel.querySelector('[data-wz-name="benef-puestos"]')?.dataset?.wzValue || 'p1';
+    const grupoLbl   = grupo === 'paradeportes' ? 'paradeportes' : 'deportes convencionales';
+    const puestosLbl = puestos === 'p3' ? 'los tres primeros lugares' : puestos === 'p2' ? 'el 1er y 2º lugar' : 'únicamente el 1er lugar';
+    const body = panel.querySelector('.wz-cond-preview__body');
+    if(body){
+      body.innerHTML = `Se calcula el <strong>ranking de instituciones educativas</strong> en <strong>${grupoLbl}</strong> por <strong>cantidad total de medallas</strong> obtenidas en la final nacional (dato de la plataforma); en caso de empate, gana la institución con <strong>más deportistas llevados a la final</strong>. Recibe el incentivo <strong>${puestosLbl}</strong> del ranking.`;
+      const prev = panel.querySelector('.wz-cond-preview');
+      if(prev) prev.dataset.empty = 'false';
+    }
+  }
+
   /* Construye los paneles del paso 3 — uno por incentivo en multi mode,
      uno solo en single mode. Detecta cambios en la lista de incentivos
      comparando una clave; si cambia, regenera todo (los rules anteriores se
@@ -1522,9 +1606,80 @@
       const catLbl = c.querySelector('[data-wz-name="categoria"] .naowee-dropdown__value')?.textContent?.trim() || '—';
       return { idx: i, name, catKey, catLbl };
     });
-    const expectedKey = (isMulti ? 'multi' : 'single') + ':' + meta.map(m => `${m.idx}|${m.name}|${m.catKey}`).join('//');
+    const expectedKey = benefTypeMode + '::' + (isMulti ? 'multi' : 'single') + ':' + meta.map(m => `${m.idx}|${m.name}|${m.catKey}`).join('//');
     if(container.dataset.wzKey === expectedKey) return; // no hay cambios
     container.dataset.wzKey = expectedKey;
+
+    const benefSelector = benefSelectorHTML();
+
+    /* ── Institución educativa: parametrización del ranking (sin builder individual) ── */
+    if(benefTypeMode === 'institucion'){
+      if(sub){
+        sub.innerHTML = 'La elegibilidad institucional <strong>no usa condiciones individuales</strong>: se calcula por <strong>ranking de medallero por colegio</strong> con datos de la plataforma. La regla aplica a todos los incentivos del programa.';
+      }
+      container.innerHTML = benefSelector + `
+        <div class="wz-cond-panel" data-inc-idx="0" data-benef="institucion">
+          <div class="naowee-message naowee-message--informative" style="margin:0 0 16px">
+            <div class="naowee-message__header">
+              <div class="naowee-message__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </div>
+              <div class="naowee-message__text">El <strong>criterio del ranking</strong> (cantidad total de medallas · final nacional) y el <strong>desempate</strong> (más deportistas llevados a la final) los define el reglamento y se calculan automáticamente desde la plataforma — no se editan aquí.</div>
+            </div>
+          </div>
+          <div class="wz-grid" style="margin-bottom:16px">
+            <div class="naowee-dropdown" data-wz-dropdown data-wz-name="benef-grupo" data-wz-value="convencionales">
+              <label class="naowee-dropdown__label">Grupo de deportes</label>
+              <div class="naowee-dropdown__trigger" tabindex="0">
+                <span class="naowee-dropdown__value">Deportes convencionales</span>
+                <div class="naowee-dropdown__controls">
+                  <span class="naowee-dropdown__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                </div>
+              </div>
+              <div class="naowee-dropdown__menu" role="listbox">
+                <div class="naowee-dropdown__option naowee-dropdown__option--selected" data-val="convencionales">Deportes convencionales</div>
+                <div class="naowee-dropdown__option" data-val="paradeportes">Paradeportes</div>
+              </div>
+              <div class="naowee-helper"><div class="naowee-helper__text">Convencionales = todos los deportes excepto paradeportes. Cada grupo tiene su propio ranking.</div></div>
+            </div>
+            <div class="naowee-dropdown" data-wz-dropdown data-wz-name="benef-puestos" data-wz-value="p1">
+              <label class="naowee-dropdown__label">Puestos que reciben el incentivo</label>
+              <div class="naowee-dropdown__trigger" tabindex="0">
+                <span class="naowee-dropdown__value">Solo 1er lugar (recomendado)</span>
+                <div class="naowee-dropdown__controls">
+                  <span class="naowee-dropdown__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                </div>
+              </div>
+              <div class="naowee-dropdown__menu" role="listbox">
+                <div class="naowee-dropdown__option naowee-dropdown__option--selected" data-val="p1">Solo 1er lugar (recomendado)</div>
+                <div class="naowee-dropdown__option" data-val="p2">1er y 2º lugar</div>
+                <div class="naowee-dropdown__option" data-val="p3">1º a 3er lugar</div>
+              </div>
+              <div class="naowee-helper"><div class="naowee-helper__text">El ranking calcula 1º, 2º y 3º; el reglamento actual premia solo al 1º.</div></div>
+            </div>
+          </div>
+          <div class="wz-cond-preview" data-empty="true">
+            <div class="wz-cond-preview__head">
+              <div class="wz-cond-preview__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <div class="wz-cond-preview__title">Así se leerá la regla</div>
+                <div class="wz-cond-preview__sub">Vista previa en vivo — lenguaje natural</div>
+              </div>
+            </div>
+            <div class="wz-cond-preview__body"><em>Configura la regla para ver la vista previa.</em></div>
+          </div>
+        </div>`;
+      upgradeDropdowns();
+      // Refrescar la vista previa cuando cambie cualquiera de los dos parámetros
+      container.querySelectorAll('.wz-cond-panel[data-benef="institucion"] .naowee-dropdown__option').forEach(opt => {
+        opt.addEventListener('click', () => setTimeout(refreshInstPreview, 0));
+      });
+      wireBenefKeyboard(container);
+      refreshInstPreview();
+      return;
+    }
 
     if(sub){
       sub.innerHTML = isMulti
@@ -1533,7 +1688,7 @@
     }
 
     if(!isMulti){
-      container.innerHTML = `
+      container.innerHTML = benefSelector + `
         <div class="wz-cond-panel" data-inc-idx="0">
           <div class="cond-builder"></div>
           <button type="button" class="naowee-btn naowee-btn--quiet naowee-btn--small wz-add-group" onclick="addConditionGroup(this)">
@@ -1554,7 +1709,7 @@
           </div>
         </div>`;
     } else {
-      container.innerHTML = meta.map(m => `
+      container.innerHTML = benefSelector + meta.map(m => `
         <div class="wz-cond-panel" data-inc-idx="${m.idx}">
           <div class="wz-cond-panel__head">
             <span class="wz-cond-panel__num">#${m.idx + 1}</span>
@@ -1586,6 +1741,7 @@
       const addBtn = p.querySelector('.wz-add-group');
       if(addBtn) addConditionGroup(addBtn);
     });
+    wireBenefKeyboard(container);
   }
 
   function addConditionRow(btnOrNothing){
@@ -2493,6 +2649,18 @@
       fuente: 'Ministerio del Deporte · 2026',
       incentives,
       conditions: { groups, summary },
+      /* Tipo de beneficiario del programa (feedback Danna/Elkin). Para institución,
+         la regla de ranking parametrizada reemplaza las condiciones individuales. */
+      benefType: benefTypeMode,
+      institutionRule: benefTypeMode === 'institucion' ? (() => {
+        const panel = document.querySelector('.wz-cond-panel[data-benef="institucion"]');
+        return {
+          grupo:   panel?.querySelector('[data-wz-name="benef-grupo"]')?.dataset?.wzValue || 'convencionales',
+          puestos: panel?.querySelector('[data-wz-name="benef-puestos"]')?.dataset?.wzValue || 'p1',
+          criterio: 'cantidad_total_medallas_final_nacional',
+          desempate: 'mas_deportistas_llevados_a_la_final'
+        };
+      })() : null,
       // Marcar como creado por el usuario para que el detalle no use el seed
       // de demo (200 códigos fake, 182 asignaciones fake, etc).
       _userCreated: true,
@@ -2538,6 +2706,7 @@
   window.setIncTypesMode = setIncTypesMode;
   window.addIncentive = addIncentive;
   window.removeIncentive = removeIncentive;
+  window.setBenefType = setBenefType;
   window.addConditionGroup = addConditionGroup;
   window.removeConditionGroup = removeConditionGroup;
   window.addConditionRow = addConditionRow;
