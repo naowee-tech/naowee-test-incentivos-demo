@@ -895,17 +895,10 @@
 }
 .wz-file-chip__remove:hover{ background: #fff0ee; color: #b42318; }
 
-/* ═════ TOAST (naowee-message fixed bottom-right — patrón escenarios) ═════ */
-/* Variante neutral — override local: el DS v1.4.0 aún no define
-   .naowee-message--neutral (candidata a promoción al DS). Sin esto, el toast
-   'Cambios descartados' quedaba transparente (sin fondo ni borde). */
-.naowee-message--neutral{
-  background: var(--naowee-color-gray-50, #f5f6fa);
-  border: 1px solid var(--naowee-color-border-default, #e7e9f3);
-  color: var(--naowee-color-text-primary, #282834);
-}
-.naowee-message--neutral .naowee-message__icon{ color: var(--naowee-color-text-secondary, #646587); }
-
+/* ═════ TOAST (naowee-message canónico del DS, fixed bottom-right) ═════
+   El componente (fondo, radius 20px, ícono círculo coloreado con glifo blanco,
+   __body, __dismiss) lo pinta el DS. Aquí SOLO va lo propio del toast:
+   posición flotante, elevación y anchos. Sin overrides de variantes. */
 /* bottom:64px para no tapar el pill de versionamiento (.naowee-floating-footer,
    fijo en bottom:14px right:20px). */
 .wz-toast-wrap{
@@ -917,18 +910,9 @@
   pointer-events:auto;
   min-width:320px;max-width:480px;
   box-shadow:0 12px 32px rgba(40,40,52,.18);
-  padding:12px 14px;
 }
-.wz-toast .naowee-message__header{display:flex;align-items:center;gap:10px;width:100%}
-.wz-toast .naowee-message__text{flex:1;min-width:0;font-size:13px;line-height:1.4}
-.wz-toast__dismiss{
-  width:24px;height:24px;border-radius:6px;border:none;background:transparent;
-  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
-  color:var(--naowee-color-text-secondary,#646587);flex-shrink:0;
-  transition:background .15s;
-}
-.wz-toast__dismiss:hover{background:rgba(0,0,0,.05)}
-.wz-toast__dismiss svg{width:14px;height:14px}
+/* Toast de una línea: centrar verticalmente ícono/texto/dismiss */
+.wz-toast .naowee-message__header{align-items:center}
 
 /* ═════ DIALOG: Guardar progreso (warning al cerrar) ═════ */
 .wz-warn-overlay{

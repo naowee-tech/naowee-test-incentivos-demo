@@ -477,7 +477,7 @@
   function confirmDiscardWizard(){
     document.getElementById('wzWarnCloseOverlay')?.classList.remove('open');
     isDirty = false;
-    showToast('Cambios descartados.', 'neutral');
+    showToast('Cambios descartados.', 'informative');
   }
   function confirmSaveDraftWizard(){
     persistDraft();
@@ -497,20 +497,24 @@
     return w;
   }
   function showToast(text, variant = 'positive'){
+    /* Solo variantes canónicas del DS v1.4.0; 'neutral' aún no existe en el DS
+       (mapea a informative hasta que se promueva). */
+    if(variant === 'neutral') variant = 'informative';
     const wrap = getToastWrap();
     const el = document.createElement('div');
     el.className = `wz-toast naowee-message naowee-message--${variant}`;
+    /* Glifos blancos (el __icon del DS es un círculo coloreado con color:#fff). */
     const icons = {
       positive:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-      negative:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>',
-      informative: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
-      neutral:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+      negative:    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M7 5h2v4H7z" fill="currentColor"/><circle cx="8" cy="11" r="1" fill="currentColor"/></svg>',
+      caution:     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M7 5h2v4H7z" fill="currentColor"/><circle cx="8" cy="11" r="1" fill="currentColor"/></svg>',
+      informative: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M7 7h2v4H7z" fill="currentColor"/><circle cx="8" cy="5" r="1" fill="currentColor"/></svg>'
     };
     el.innerHTML = `
       <div class="naowee-message__header">
-        <div class="naowee-message__icon">${icons[variant] || icons.positive}</div>
-        <div class="naowee-message__text">${text}</div>
-        <button type="button" class="wz-toast__dismiss" aria-label="Cerrar">
+        <span class="naowee-message__icon">${icons[variant] || icons.positive}</span>
+        <span class="naowee-message__body">${text}</span>
+        <button type="button" class="naowee-message__dismiss" aria-label="Cerrar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>`;
@@ -519,7 +523,7 @@
       el.style.opacity = '0';
       setTimeout(() => el.remove(), 260);
     };
-    el.querySelector('.wz-toast__dismiss').addEventListener('click', dismiss);
+    el.querySelector('.naowee-message__dismiss').addEventListener('click', dismiss);
     wrap.appendChild(el);
     setTimeout(dismiss, 4000);
   }
