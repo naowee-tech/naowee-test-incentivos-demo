@@ -896,8 +896,20 @@
 .wz-file-chip__remove:hover{ background: #fff0ee; color: #b42318; }
 
 /* ═════ TOAST (naowee-message fixed bottom-right — patrón escenarios) ═════ */
+/* Variante neutral — override local: el DS v1.4.0 aún no define
+   .naowee-message--neutral (candidata a promoción al DS). Sin esto, el toast
+   'Cambios descartados' quedaba transparente (sin fondo ni borde). */
+.naowee-message--neutral{
+  background: var(--naowee-color-gray-50, #f5f6fa);
+  border: 1px solid var(--naowee-color-border-default, #e7e9f3);
+  color: var(--naowee-color-text-primary, #282834);
+}
+.naowee-message--neutral .naowee-message__icon{ color: var(--naowee-color-text-secondary, #646587); }
+
+/* bottom:64px para no tapar el pill de versionamiento (.naowee-floating-footer,
+   fijo en bottom:14px right:20px). */
 .wz-toast-wrap{
-  position:fixed;bottom:24px;right:24px;
+  position:fixed;bottom:64px;right:24px;
   z-index:1500;display:flex;flex-direction:column;gap:8px;
   pointer-events:none;max-width:calc(100vw - 48px);
 }
