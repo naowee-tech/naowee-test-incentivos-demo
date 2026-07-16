@@ -9,7 +9,7 @@
    ═══════════════════════════════════════════════════════════════ */
 (function(){
   var MODULE_NAME    = 'Incentivos';
-  var MODULE_VERSION = 'v1.4.3';
+  var MODULE_VERSION = 'v1.5.0';
   var REPO           = 'naowee-tech/naowee-test-incentivos-demo';
   var RELEASE_URL    = 'https://github.com/' + REPO + '/releases/tag/' + MODULE_VERSION;
 

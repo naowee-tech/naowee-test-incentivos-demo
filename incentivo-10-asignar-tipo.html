@@ -364,7 +364,7 @@
                     <span class="naowee-badge naowee-badge--caution naowee-badge--quiet naowee-badge--small">Becas 2026</span>
                   </div>
                 </div>
-                <div class="inc__value">$1.000.000</div>
+                <!-- Valor oculto en la vista del operador (feedback Danna). -->
               </div>
 
               <div class="inc" data-id="kit" data-category="kit" data-value="350000" data-name="Kit deportivo Atlántico" onclick="selectInc(this)">
@@ -379,7 +379,6 @@
                     <span class="naowee-badge naowee-badge--caution naowee-badge--quiet naowee-badge--small">Kit Atlántico</span>
                   </div>
                 </div>
-                <div class="inc__value">$350.000</div>
               </div>
 
               <div class="inc" data-id="bono" data-category="bono" data-value="500000" data-name="Bono nutrición 2026" onclick="selectInc(this)">
@@ -394,7 +393,6 @@
                     <span class="naowee-badge naowee-badge--caution naowee-badge--quiet naowee-badge--small">Bono nutrición</span>
                   </div>
                 </div>
-                <div class="inc__value">$500.000</div>
               </div>
             </div>
           </div>
@@ -427,7 +425,6 @@
                       <th class="col-num">Código</th>
                       <th>Tipo</th>
                       <th>Cargado</th>
-                      <th class="col-value">Valor</th>
                     </tr>
                   </thead>
                   <tbody id="codeTbody"></tbody>
@@ -484,10 +481,7 @@
             <span class="val">Pendiente</span>
           </div>
           <!-- Código retirado del resumen por seguridad (feedback Danna): código redimible. La selección del código sigue en la tabla del inventario. -->
-          <div class="summary-row big pending" id="sumValue">
-            <span class="lbl">Valor</span>
-            <span class="val">$0</span>
-          </div>
+          <!-- Valor retirado del resumen (feedback Danna): el beneficiario no debe ver el costo de lo asignado. -->
           <hr/>
           <div class="summary-row">
             <span class="lbl">Operador</span>
@@ -544,7 +538,9 @@ function selectInc(el){
   el.classList.add('selected');
   const category = el.dataset.category || el.dataset.id;
   selectedInc = { id: el.dataset.id, value: +el.dataset.value, name: el.dataset.name, category };
-  activeFilter = el.dataset.id;
+  /* Filtrar códigos por CATEGORÍA cuando es bono: las cards hidratadas desde el
+     perfil usan ids sintéticos (p0/p1/p2) que no matchean los types de ALL_CODES. */
+  activeFilter = category === 'bono' ? 'bono' : el.dataset.id;
 
   const cp = document.getElementById('codePanel');
   const isBono = category === 'bono';
@@ -626,7 +622,7 @@ function renderCodes(){
   }
 
   if(!total){
-    tbody.innerHTML = `<tr><td colspan="5"><div class="code-empty">Sin códigos con ese filtro. Prueba otro número o limpia el buscador.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="code-empty">Sin códigos con ese filtro. Prueba otro número o limpia el buscador.</div></td></tr>`;
   } else {
     const typeLabel = (t) => t === 'beca' ? 'Beca' : t === 'kit' ? 'Kit' : 'Bono';
     const typeColor = (t) => t === 'beca' ? '#fff3e6' : t === 'kit' ? '#eef5ff' : '#f3e8ff';
@@ -639,7 +635,6 @@ function renderCodes(){
           <td class="col-num"><span class="num-cell">${c.code}</span><div class="meta-cell">${c.note}</div></td>
           <td><span class="naowee-badge naowee-badge--quiet naowee-badge--small" style="background:${typeColor(c.type)};color:${typeFg(c.type)}">${typeLabel(c.type)}</span></td>
           <td class="meta-cell">${c.fecha}</td>
-          <td class="col-value">$${c.value.toLocaleString('es-CO')}</td>
         </tr>`;
     }).join('');
   }
@@ -669,7 +664,6 @@ function selectCode(code){
 function updateSummary(){
   const sumInc = document.getElementById('sumInc');
   const sumCode = document.getElementById('sumCode');
-  const sumValue = document.getElementById('sumValue');
   const btnNext = document.getElementById('btnNext');
   if(selectedInc){
     sumInc.classList.remove('pending');
@@ -688,14 +682,8 @@ function updateSummary(){
       sumCode.querySelector('.val').style.fontFamily = '';
     }
   }
-  // Valor + habilitar Continuar
-  if(selectedInc && (isBono ? selectedCode : true)){
-    sumValue.classList.remove('pending');
-    sumValue.querySelector('.val').textContent = `$${selectedInc.value.toLocaleString('es-CO')}`;
-    btnNext.disabled = false;
-  } else {
-    btnNext.disabled = true;
-  }
+  // Habilitar Continuar (valor oculto en la vista del operador — feedback Danna)
+  btnNext.disabled = !(selectedInc && (isBono ? selectedCode : true));
 }
 
 document.getElementById('nowLabel').textContent = new Date().toLocaleString('es-CO', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
@@ -777,7 +765,6 @@ function incItemHTML(pr, i){
       <div class="inc__name">${pr.name||''}</div>
       <div class="inc__desc">${pr.desc||''}</div>
     </div>
-    <div class="inc__value">${pr.value||''}</div>
   </div>`;
 }
 

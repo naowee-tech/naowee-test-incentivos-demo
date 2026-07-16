@@ -1284,7 +1284,7 @@ function renderProfileCard(p, opts){
                   <div class="prog__name">${pr.name}</div>
                   <div class="prog__desc">${pr.desc}</div>
                 </div>
-                <div class="prog__value">${pr.value}</div>
+                <!-- Valor oculto en la vista del operador (feedback Danna): el beneficiario no debe ver el costo. -->
                 <div class="prog__assignment">
                   <span class="prog__assignment-tag">${ICON_CHECK} Asignado</span>
                   <div class="prog__assignment-meta">
@@ -1304,7 +1304,6 @@ function renderProfileCard(p, opts){
                 <div class="prog__name">${pr.name}</div>
                 <div class="prog__desc">${pr.desc}</div>
               </div>
-              <div class="prog__value">${pr.value}</div>
               <span></span>
             </div>`;
         }).join('')}

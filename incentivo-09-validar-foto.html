@@ -419,7 +419,7 @@
           <hr/>
           <div class="summary-row"><span class="lbl">Incentivo</span><span class="val" id="sumInc">Beca educativa</span></div>
           <!-- Código retirado del resumen por seguridad (feedback Danna): código redimible. -->
-          <div class="summary-row big"><span class="lbl">Valor</span><span class="val" id="sumValue">$1.000.000</span></div>
+          <!-- Valor retirado del resumen (feedback Danna): el beneficiario no debe ver el costo de lo asignado. -->
           <hr/>
           <div class="summary-row"><span class="lbl">Evidencia</span><span class="val" id="sumEvidence" style="color:var(--text-secondary);font-weight:500;font-style:italic">Pendiente</span></div>
 
@@ -558,7 +558,7 @@ function confirmDelivery(){
     if(s.doc) document.getElementById('sumDoc').textContent = `${s.docType || 'CC'} ${s.doc}`;
     if(s.incentive?.name) document.getElementById('sumInc').textContent = s.incentive.name.length > 30 ? s.incentive.name.slice(0,28)+'…' : s.incentive.name;
     /* Código retirado del resumen por seguridad (feedback Danna): código redimible. */
-    if(s.incentive?.value) document.getElementById('sumValue').textContent = `$${s.incentive.value.toLocaleString('es-CO')}`;
+    /* sumValue retirado (feedback Danna): valor oculto en la vista del operador. */
     if(s.initials) document.getElementById('recapAva').textContent = s.initials;
     if(s.name) document.getElementById('recapName').textContent = s.name;
     if(s.doc) document.getElementById('recapDoc').innerHTML = `<strong>${s.docType}</strong> ${s.doc}`;

@@ -249,13 +249,7 @@
               <span class="kv-row__lbl">Incentivo</span>
               <span class="kv-row__val" id="receiptInc">Beca educativa · Medallistas de oro</span>
             </div>
-            <div class="kv-row kv-row--highlight">
-              <span class="kv-row__ico">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-              </span>
-              <span class="kv-row__lbl">Valor entregado</span>
-              <span class="kv-row__val" id="receiptValue">$1.000.000</span>
-            </div>
+            <!-- Valor entregado retirado del comprobante (feedback Danna): el beneficiario no debe ver el costo de lo asignado. -->
             <!-- Código asignado retirado del comprobante por seguridad (feedback Danna): es el código redimible, no debe exponerse en resúmenes. -->
             <div class="kv-row">
               <span class="kv-row__ico">
@@ -352,7 +346,7 @@ try{
   }
   if(s.incentive) document.getElementById('receiptInc').textContent = s.incentive;
   /* Código retirado del comprobante por seguridad (feedback Danna): el código redimible no se muestra en resúmenes. */
-  if(s.value) document.getElementById('receiptValue').textContent = `$${s.value.toLocaleString('es-CO')}`;
+  /* receiptValue retirado (feedback Danna): valor oculto en la vista del operador. */
   /* Programa: por ahora se usa el nombre del incentivo como programa (en producción se persistiría el programa real desde la pantalla 10). */
   if(s.incentive) document.getElementById('receiptProgram').textContent = s.incentive;
   /* Zona: para institución usar "Sede", para persona usar "Zona". */
