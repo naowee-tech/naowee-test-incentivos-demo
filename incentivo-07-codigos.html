@@ -1268,6 +1268,7 @@ function showRvToast(opts){
 
 
 <script src="shared/footer-scroll.js" defer></script>
+<script src="shared/tour.js" defer></script>
 
 <!-- Footer flotante Naowee -->
 <div class="naowee-floating-footer" role="contentinfo" aria-label="Pie de página Naowee">
@@ -1369,7 +1370,7 @@ function showRvToast(opts){
 
     <footer class="rv-footer">
       <button class="naowee-btn naowee-btn--mute naowee-btn--large" onclick="closeRevertModal()">Cancelar</button>
-      <button class="naowee-btn naowee-btn--loud naowee-btn--large" onclick="doRevert()">
+      <button id="btnRvConfirm" class="naowee-btn naowee-btn--loud naowee-btn--large" onclick="doRevert()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
         Revertir código
       </button>
